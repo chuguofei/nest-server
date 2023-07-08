@@ -1,0 +1,18 @@
+mysql:
+  type: mysql
+  host: 
+  port: 3306
+  username: 
+  password: 
+  database: demo
+  synchronize: true
+  entities:
+    - ./src/**/*.entity.{js,ts}
+
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: 123456
+
+logger:
+  console: true
