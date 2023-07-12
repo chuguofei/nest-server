@@ -115,7 +115,7 @@ export class LoggerService {
     this.logWithStackInfo('error', args);
   }
 
-  console(message: string) {
-    console.log(chalk.red(message));
+  console(message: PropertyKey | any) {
+    console.log(chalk.red(JSON.stringify(message)));
   }
 }

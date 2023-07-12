@@ -12,13 +12,9 @@ import * as path from 'path';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
-        const entitys: Array<string> = configService.get('mysql.entitys');
         return {
           ...configService.get('mysql'),
-          entities: [],
-          entitys: entitys
-            ? entitys.map((url) => path.join(__dirname, '**', url))
-            : [],
+          entities: [path.join(__dirname, '../.././', '/**/*.entity{.ts,.js}')],
         };
       },
     }),
