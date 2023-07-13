@@ -15,9 +15,10 @@ export class SysDeptService {
 
   async getDeptList(sysDept: SysDeptEntity) {
     const result = await this.deptRepository
-      .createQueryBuilder()
+      .createQueryBuilder('d')
       .where(sysDept)
       .getMany();
+
     return ApiResponse.success(result);
   }
 
@@ -27,6 +28,7 @@ export class SysDeptService {
   }
 
   async updateDept(sysDept: SysDeptEntity) {
+    sysDept.updateAt = new Date();
     const result = await this.deptRepository.update(sysDept.id, sysDept);
     return result.affected == 1
       ? ApiResponse.successToMessage('修改成功')

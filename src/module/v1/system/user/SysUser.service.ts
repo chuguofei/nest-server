@@ -15,7 +15,7 @@ export class SysUserService {
 
   async getUserList(sysUser: SysUserQueryDto) {
     const queryBuilder = this.userRepository
-      .createQueryBuilder('sys_user')
+      .createQueryBuilder('u')
       .where(sysUser);
 
     const result = await PaginateHelper.paginate<SysUserEntity>(

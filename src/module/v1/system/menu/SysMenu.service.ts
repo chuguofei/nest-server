@@ -18,8 +18,10 @@ export class SysMenuService {
 
   async getMenuList(sysMenu: SysMenuQueryDto) {
     const queryBuilder = this.menuRepository
-      .createQueryBuilder('sys_menu')
-      .where(sysMenu);
+      .createQueryBuilder('m')
+      .where(sysMenu)
+      .orderBy('m.sort', 'ASC');
+
     const result = await PaginateHelper.paginate<SysMenuEntity>(
       queryBuilder,
       sysMenu.current,
@@ -34,6 +36,7 @@ export class SysMenuService {
   }
 
   async updateMenu(sysMenu: SysMenuEntity) {
+    sysMenu.updateAt = new Date();
     const result = await this.menuRepository.update(sysMenu.id, sysMenu);
     return result.affected == 1
       ? ApiResponse.successToMessage('修改成功')

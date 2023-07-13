@@ -1,3 +1,4 @@
+import { TimeTransformerDefault } from 'src/core/transformer/TimeTransformer';
 import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
 
 @Entity('sys_menu')
@@ -58,6 +59,7 @@ export class SysMenuEntity extends BaseEntity {
     name: 'create_at',
     type: 'timestamp',
     default: () => 'current_timestamp',
+    transformer: TimeTransformerDefault(),
   })
   createAt: Date;
 
@@ -65,6 +67,7 @@ export class SysMenuEntity extends BaseEntity {
     name: 'update_at',
     type: 'timestamp',
     default: () => 'current_timestamp',
+    transformer: TimeTransformerDefault(),
   })
   updateAt: Date;
 }

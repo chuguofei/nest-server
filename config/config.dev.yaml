@@ -5,9 +5,9 @@ mysql:
   username: 
   password: 
   database: demo
-  synchronize: true
-  entities:
-    - ./src/**/*.entity.{js,ts}
+  synchronize: false
+  timezone: Z
+  logging: false
 
 redis:
   host: 127.0.0.1
