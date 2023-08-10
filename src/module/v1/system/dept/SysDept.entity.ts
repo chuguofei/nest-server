@@ -1,9 +1,9 @@
-import { BaseEntity } from 'src/common/entitys/base.entitys';
+import { AppEntity } from 'src/common/entitys/base.entitys';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { TimeTransformerDefault } from 'src/core/transformer/TimeTransformer';
 
 @Entity('sys_dept')
-export class SysDeptEntity extends BaseEntity {
+export class SysDeptEntity extends AppEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

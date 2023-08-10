@@ -1,20 +1,18 @@
 mysql:
   type: mysql
-  host: 127.0.0.1
+  host: rm-2zeeh682k7f1q79qwno.mysql.rds.aliyuncs.com
   port: 3306
-  username: root
-  password: 123456
-  database: shop
+  username: zifan_rds
+  password: acfan0523@gmail
+  database: demo
   synchronize: false
   timezone: Z
-  logging: true
+  logging: false
 
 redis:
   host: 127.0.0.1
   port: 6379
   password: 123456
-
-uploadDir: images
 
 logger:
   console: true

@@ -1,8 +1,9 @@
+import { AppEntity } from 'src/common/entitys/base.entitys';
 import { TimeTransformerDefault } from 'src/core/transformer/TimeTransformer';
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('sys_menu')
-export class SysMenuEntity extends BaseEntity {
+export class SysMenuEntity extends AppEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

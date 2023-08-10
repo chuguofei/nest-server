@@ -14,6 +14,7 @@ import * as path from 'path';
       useFactory: async (configService: ConfigService) => {
         return {
           ...configService.get('mysql'),
+          password: configService.get('mysql.password') + '',
           entities: [path.join(__dirname, '../.././', '/**/*.entity{.ts,.js}')],
         };
       },

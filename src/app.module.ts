@@ -1,22 +1,13 @@
 import { Module } from '@nestjs/common';
-import { LoggerModule } from './common/logger/logger.module';
-import { ConfigModule } from './config/config.module';
-import { DatabaseModule } from './common/database/database.module';
-import { RedisModule } from './common/redis/redis.module';
-import { SysMenuModule } from './module/v1/system/menu/sysMenu.module';
+
 import { APP_FILTER } from '@nestjs/core';
 import { MyExceptionFilter } from './filter/exception.filter';
-import { SysDeptModule } from './module/v1/system/dept/SysDept.module';
+import { ShoppingModule } from './module/v3/shopping';
+import { SystemModule } from './module/v1/system';
+import { CommonModule } from './common';
 
 @Module({
-  imports: [
-    ConfigModule,
-    LoggerModule,
-    DatabaseModule,
-    RedisModule,
-    SysMenuModule,
-    SysDeptModule,
-  ],
+  imports: [CommonModule, SystemModule, ShoppingModule],
   controllers: [],
   providers: [
     {

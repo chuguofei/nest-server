@@ -17,8 +17,8 @@ export class ConfigService {
     this.config = yaml.load(yamlData);
   }
 
-  get<T>(key: string): T {
-    return get(this.config, key);
+  get<T>(key: string, _default?: string): T {
+    return get(this.config, key, _default);
   }
 
   curEnv<T>(env: string): T {
