@@ -26,9 +26,6 @@ export class GoodsService {
   @Inject(GoodsTagsService)
   private readonly goodsTagsService: GoodsTagsService;
 
-  @InjectRepository(GoodsTags)
-  private readonly goodsTagsRepository: Repository<GoodsTags>;
-
   constructor(private readonly logger: LoggerService) {}
 
   async getGoodsList(GoodsEntitys: GoodsEntitys) {
@@ -50,17 +47,22 @@ export class GoodsService {
       .createQueryBuilder('goods')
       .leftJoinAndSelect('goods.classify', 'classify')
       .leftJoinAndSelect('goods.shop', 'shop')
-      .leftJoinAndSelect('goods.goodsTagsDto', 'goods_tags');
+      .leftJoinAndSelect('goods.goodsTagsDto', 'goods_tags')
+      .orderBy('goods_tags.createAt', 'DESC');
 
-    Object.keys(_.omit(goodsPageQuery, 'current', 'pageSize')).forEach(
-      (key) => {
-        if (goodsPageQuery[key]) {
-          queryBuilder.andWhere(`goods.${_.snakeCase(key)} = :${key}`, {
-            [key]: goodsPageQuery[key],
-          });
-        }
-      },
-    );
+    Object.keys(
+      _.omit(goodsPageQuery, 'current', 'pageSize', 'goodsName'),
+    ).forEach((key) => {
+      if (goodsPageQuery[key]) {
+        queryBuilder.andWhere(`goods.${_.snakeCase(key)} = :${key}`, {
+          [key]: goodsPageQuery[key],
+        });
+      }
+    });
+
+    queryBuilder.andWhere(`goods.goodsName LIKE :goodsName`, {
+      goodsName: `%${goodsPageQuery.goodsName ?? ''}%`,
+    });
 
     const result = await PaginateHelper.paginate<GoodsListDto>(
       queryBuilder,
@@ -71,52 +73,86 @@ export class GoodsService {
   }
 
   async addGoods(goodsEntitys: GoodsAddDto) {
-    const result = this.entityManager
-      .transaction(async () => {
-        const goodsItem = await this.goodsRepository.save<GoodsEntitys>(
-          goodsEntitys,
-        );
-        goodsEntitys.goodsTagsDto.forEach((item) => {
-          item.goodsId = goodsItem.id;
-        });
-        await this.goodsTagsService.addGoodsTags(goodsEntitys.goodsTagsDto);
-      })
-      .catch((error) => {
-        return ApiResponse.failToMessage(error);
-      });
-    return ApiResponse.success(result);
+    try {
+      const result = await this.entityManager.transaction(
+        async (transaction) => {
+          const goodsItem = await transaction
+            .createQueryBuilder()
+            .insert()
+            .into(GoodsEntitys)
+            .values(goodsEntitys)
+            .execute();
+
+          goodsEntitys.goodsTagsDto.forEach((item) => {
+            item.goodsId = goodsItem.raw.insertId;
+            item.createAt = new Date();
+          });
+          await this.goodsTagsService.addGoodsTags(goodsEntitys.goodsTagsDto);
+        },
+      );
+      return ApiResponse.success(result);
+    } catch (error) {
+      this.logger.error(error);
+      return ApiResponse.failToMessage(error.message);
+    }
   }
 
   async updateGoods(goodsEntitys: GoodsAddDto) {
-    this.entityManager
-      .transaction(async () => {
+    try {
+      await this.entityManager.transaction(async (transaction) => {
         goodsEntitys.updateAt = new Date();
-        await this.goodsRepository.update(
-          goodsEntitys.id,
-          _.omit(goodsEntitys, 'goodsTagsDto'),
-        );
-        await this.goodsTagsRepository
+        await transaction
+          .createQueryBuilder()
+          .update(GoodsEntitys)
+          .set(_.omit(goodsEntitys, 'goodsTagsDto'))
+          .where('id = :id', { id: goodsEntitys.id })
+          .execute();
+
+        await transaction
           .createQueryBuilder()
           .delete()
           .from(GoodsTags)
           .where('goods_id = :goodsId', { goodsId: goodsEntitys.id })
           .execute();
+
         goodsEntitys.goodsTagsDto.forEach((item) => {
           item.goodsId = goodsEntitys.id;
+          item.createAt = new Date();
         });
-        await this.goodsTagsService.addGoodsTags(goodsEntitys.goodsTagsDto);
-      })
-      .catch((error) => {
-        return ApiResponse.failToMessage('修改失败');
+        await transaction
+          .createQueryBuilder()
+          .insert()
+          .into(GoodsTags)
+          .values(goodsEntitys.goodsTagsDto)
+          .execute();
       });
-
-    return ApiResponse.successToMessage('删除成功');
+      return ApiResponse.successToMessage('修改成功');
+    } catch (error) {
+      this.logger.error(error);
+      return ApiResponse.failToMessage(error.message);
+    }
   }
 
   async delGoods(id: number) {
-    const result = await this.goodsRepository.delete(id);
-    return result.affected == 1
-      ? ApiResponse.successToMessage('删除成功')
-      : ApiResponse.failToMessage('删除失败');
+    try {
+      await this.entityManager.transaction(async (transaction) => {
+        await transaction
+          .createQueryBuilder()
+          .delete()
+          .from(GoodsTags)
+          .where('goods_id = :goodsId', { goodsId: id })
+          .execute();
+
+        await transaction
+          .createQueryBuilder()
+          .delete()
+          .from(GoodsEntitys)
+          .where('id = :id', { id })
+          .execute();
+      });
+      return ApiResponse.successToMessage('删除成功');
+    } catch (error) {
+      return ApiResponse.failToMessage(error.message);
+    }
   }
 }

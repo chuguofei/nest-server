@@ -1,73 +1,45 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+## mongo
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+###
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- Read：允许用户读取指定数据库
+- readWrite：允许用户读写指定数据库
+- dbAdmin：允许用户在指定数据库中执行管理函数，如索引创建、删除，查看统计或访问 system.profile
+- userAdmin：允许用户向 system.users 集合写入，可以找指定数据库里创建、删除和管理用户
+- clusterAdmin：只在 admin 数据库中可用，赋予用户所有分片和复制集相关函数的管理权限。
+- readAnyDatabase：只在 admin 数据库中可用，赋予用户所有数据库的读权限
+- readWriteAnyDatabase：只在 admin 数据库中可用，赋予用户所有数据库的读写权限
+- userAdminAnyDatabase：只在 admin 数据库中可用，赋予用户所有数据库的 userAdmin 权限
+- dbAdminAnyDatabase：只在 admin 数据库中可用，赋予用户所有数据库的 dbAdmin 权限。
+- root：只在 admin 数据库中可用。超级账号，超级权限
 
-## Description
+### 安装
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+```sh
+docker pull mongo
 
-## Installation
+## 启动容器
+docker run --name mongoDB -p 27017:27017 -d mongo --auth
 
-```bash
-$ pnpm install
+## 创建一个用户 root 密码：123456 角色为 root, 数据库为 admin
+
+db.createUser({user:'root',pwd: '123456' , roles:[{ role: 'root' ,db:'admin'}] })
 ```
 
-## Running the app
+### 链接选项
 
-```bash
-# development
-$ pnpm run start
+- Standalone（独立部署）:
+  - 这是最简单的 MongoDB 部署方式，通常用于开发和测试环境，或者小型应用程序。
+  - 单个 MongoDB 实例运行在一个服务器上，不与其他 MongoDB 实例连接。
+  - 没有高可用性和扩展性的支持，因为只有一个单独的实例。
+- Shard Cluster（分片集群）:
 
-# watch mode
-$ pnpm run start:dev
+  -分片集群是用于处理大规模数据和高吞吐量的 MongoDB 部署选项。 -数据被分成多个片段（shards），每个片段存储在不同的服务器上。 -分片集群提供了水平扩展性，允许处理大量数据，并且提高了读写操作的性能。
 
-# production mode
-$ pnpm run start:prod
-```
+- Replica Set（副本集）:
 
-## Test
+  - 副本集是用于提供高可用性和数据冗余的 MongoDB 部署选项。
+  - 一个副本集包含一个主节点和多个从节点。
 
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+  - 主节点处理所有写操作，从节点复制主节点的数据，并可以提供读操作的负载均衡和故障恢复。
+  - 如果主节点发生故障，系统会自动选举新的主节点。

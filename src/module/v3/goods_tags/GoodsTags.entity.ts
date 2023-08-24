@@ -1,7 +1,8 @@
+import { AppEntity } from 'src/common/entitys/base.entitys';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('shopping_goods_tags')
-export class GoodsTags {
+export class GoodsTags extends AppEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
