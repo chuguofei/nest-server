@@ -1,9 +1,9 @@
 mysql:
   type: mysql
-  host: rm-2zeeh682k7f1q79qwno.mysql.rds.aliyuncs.com
+  host:
   port: 3306
-  username: zifan_rds
-  password: acfan0523@gmail
+  username: test
+  password: test
   database: demo
   synchronize: false
   timezone: Z
